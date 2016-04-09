@@ -4,19 +4,22 @@
 #include <iostream>
 #include <stdio.h>
 using namespace std;
-GeneticSuggestion::GeneticSuggestion(int populationSize,int calories) {
+GeneticSuggestion::GeneticSuggestion(int mealPerDay, int calories) {
     m_base = model.model();
-    m_populationSize = populationSize;
+    m_populationSize = mealPerDay*7;
+    m_mealPerDay = mealPerDay;
     m_calories = calories;
     user = model.randModel(8);
 }
 
+GeneticSuggestion::GeneticSuggestion() {}
+
 void GeneticSuggestion::run() {
+    buildPopulation();
     do {
-        buildPopulation();
         cross();
         mutation();
-    } while (adaptation());
+    } while (rating());
 }
 
 void GeneticSuggestion::cross() {
@@ -31,18 +34,25 @@ int GeneticSuggestion::harmony(QBitArray reference, int i) {
     return (reference[i] == reference[reference.size() - 1 - i]) +  harmony(reference, ++i);
 }
 
-bool GeneticSuggestion::adaptation() {
-    int midScore = 0;
-    foreach (Food* var, m_population)
-        midScore+= score(var);
-    double result = util.sum(m_population)/7;
-    return !util.approach(result, m_calories,0.05) || midScore/m_populationSize <= 200;
+bool GeneticSuggestion::rating() {
+    QVector<double> scores;
+    foreach (QVector<Food *> gene, m_population) {
+        scores << adaptation(gene);
+    }
+    double rate = util.standardDeviation(scores);
+    return rate < -50 || rate > 50;
+}
+
+int GeneticSuggestion::adaptation(QVector<Food *> gene) {
+    int adaptationScore = 0;
+    foreach (Food * current, gene)
+        adaptationScore += score(current);
+    return adaptationScore;
 }
 
 void GeneticSuggestion::buildPopulation(){
-    m_population.clear();
-    for (int i = 0; i < m_populationSize; ++i)
-        m_population.append(m_base.at(rand() % m_base.size()));
+    while(m_population.size() != 7)
+        m_population << model.makeGene(m_mealPerDay);
 }
 
 int GeneticSuggestion::score(Food* reference) {
@@ -52,16 +62,19 @@ int GeneticSuggestion::score(Food* reference) {
 }
 
 void GeneticSuggestion::print() {
-    for (int i = 0; i < m_population.size(); ++i) {
-        printf("[%5d - %3d] ", m_population[i]->calories(),score(m_population[i]));
-        if((i + 1)% 6 == 0) cout << endl;
+    foreach (QVector<Food*> i, m_population) {
+        QString out = "";
+        foreach (Food* f, i) {
+            out += '[' + f->getName() + " " + QString::number(f->calories()) + ']';
+        }
+        qDebug() << out;
     }
 }
 
 void GeneticSuggestion::mutation() {
     for (int i = 0; i < m_population.size(); ++i) {
-        int j = rand() % m_base.size();
-        if(score(m_population[i]) < score(m_base[j]))
-            m_population[i] = m_base[j];
+        QVector<Food *> gene = model.makeGene(m_mealPerDay);
+        if(adaptation(m_population[i]) < adaptation(gene))
+            m_population[i] = gene;
     }
 }

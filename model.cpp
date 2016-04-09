@@ -6,11 +6,20 @@
 #include <QSqlRecord>
 #include <QBitArray>
 
+Model::Model() {
+    load();
+    srand(time(NULL));
+}
+
 QVector<Food *> Model::model() {
-        load();
-//    for (int i = 0; i < 10000; ++i)
-//        m_model.append(new Food(i,"",randModel(8), rand() % 1100 + 1, 0));
     return m_model;
+}
+
+QVector<Food *> Model::makeGene(int size) {
+    QVector<Food *> gene;
+    while(gene.size() != size)
+        gene << m_model.at(rand() % m_model.size());
+    return gene;
 }
 
 QBitArray Model::randModel(int lengthModel) {
@@ -20,9 +29,7 @@ QBitArray Model::randModel(int lengthModel) {
     return bit;
 }
 
-Model::Model() {
-    srand(time(NULL));
-}
+
 
 void Model::load() {
     QSqlQuery query;
@@ -35,7 +42,7 @@ void Model::load() {
             int id = query.value("food_id").toInt();
             QString name = query.value("name").toString();
             int cal = query.value("calorificvalue").toInt();
-            Food * current = new Food(id ,name ,randModel(8), cal);
+            Food * current = new Food(id ,name ,randModel(8), cal, 0);
             m_model.append(current);
         }
     }

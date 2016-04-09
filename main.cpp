@@ -5,7 +5,7 @@
 #include <QVector>
 #include <QTime>
 int main(int argc, char *argv[]) {
-        GeneticSuggestion genetic(42,2949);
+        GeneticSuggestion genetic(6,2900);
         genetic.run();
         genetic.print();
 }

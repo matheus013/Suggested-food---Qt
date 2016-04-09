@@ -13,7 +13,8 @@ class Model : public QObject {
 public:
     Model();
     QVector<Food *> model();
-    QBitArray randModel(int lengthModel);
+    QVector<Food *> makeGene(int size);
+    QBitArray randModel(int lengthModel);    
 private:
     void load();
 };
