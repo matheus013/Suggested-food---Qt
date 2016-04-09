@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     bd/daobject.cpp \
     bd/tablemanagement.cpp \
     geneticpreferences.cpp \
-    food.cpp
+    food.cpp \
+    mathutil.cpp
 
 HEADERS += \
     geneticsuggestion.h \
@@ -25,4 +26,5 @@ HEADERS += \
     bd/daobject.h \
     bd/tablemanagement.h \
     geneticpreferences.h \
-    food.h
+    food.h \
+    mathutil.h

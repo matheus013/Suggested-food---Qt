@@ -5,15 +5,18 @@
 #include <QBitArray>
 #include "model.h"
 #include "food.h"
+#include "mathutil.h"
 
 class GeneticSuggestion : public QObject {
     Q_OBJECT
-    int m_populationSize;
-    int m_calories;
     QVector<Food*> m_base;
     QVector<Food*> m_population;
-    Model model;
+    QVector<int> weight;
     QBitArray user;
+    MathUtil util;
+    Model model;
+    int m_populationSize;
+    int m_calories;
 
 public:
     GeneticSuggestion(int populationSize, int calories);
@@ -26,7 +29,6 @@ private:
     int score(Food *reference);
     void mutation();
     int harmony(QBitArray reference, int i = 0);
-    QBitArray join(QBitArray a,QBitArray b);
-    int adaptation();
+    bool adaptation();
 };
 

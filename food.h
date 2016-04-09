@@ -5,11 +5,13 @@
 
 class Food : public QObject {
     Q_OBJECT
+    int id;
+    QString m_name;
     QBitArray m_info;
     int m_calories;
-    int id;
+    int m_time;
 public:
-    Food(int id, QBitArray info, int calories);
+    Food(int id,QString name, QBitArray info, int calories,int time);
 
     QBitArray info() const;
     void setInfo(const QBitArray &info);
@@ -17,4 +19,8 @@ public:
     void setCalories(int calories);
     int getId() const;
     void setId(int value);
+    int getTime() const;
+    void setTime(int time);
+    QString getName() const;
+    void setName(const QString &name);
 };

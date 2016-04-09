@@ -12,17 +12,17 @@ GeneticSuggestion::GeneticSuggestion(int populationSize,int calories) {
 }
 
 void GeneticSuggestion::run() {
-    do{
+    do {
         buildPopulation();
         cross();
         mutation();
-    }while (adaptation() > m_calories * 1.1 || adaptation() < m_calories * 0.9);
+    } while (adaptation());
 }
 
 void GeneticSuggestion::cross() {
     int length = m_population.size();
     for (int i = 0; i < length; ++i)
-        swap(m_population[rand() % length],m_population[rand() % length]);
+        swap(m_population[rand() % length], m_population[rand() % length]);
 }
 
 int GeneticSuggestion::harmony(QBitArray reference, int i) {
@@ -31,25 +31,12 @@ int GeneticSuggestion::harmony(QBitArray reference, int i) {
     return (reference[i] == reference[reference.size() - 1 - i]) +  harmony(reference, ++i);
 }
 
-QBitArray GeneticSuggestion::join(QBitArray a, QBitArray b){
-    int start = a.size();
-    a.resize(start + b.size());
-    for (int i = start; i < a.size(); ++i)
-        a.setBit(i,b.at(i - start));
-    return a;
-}
-
-int GeneticSuggestion::adaptation() {
-    int sum = 0, result = 0;
-    for (int i = 0,count = 0; i < m_population.size(); ++i, ++count) {
-        sum += m_population[i]->calories();
-        if(count == 6){
-            result += sum;
-            sum = 0;
-            count = 0;
-        }
-    }
-    return result/7;
+bool GeneticSuggestion::adaptation() {
+    int midScore = 0;
+    foreach (Food* var, m_population)
+        midScore+= score(var);
+    double result = util.sum(m_population)/7;
+    return !util.approach(result, m_calories,0.05) || midScore/m_populationSize <= 200;
 }
 
 void GeneticSuggestion::buildPopulation(){
@@ -59,17 +46,16 @@ void GeneticSuggestion::buildPopulation(){
 }
 
 int GeneticSuggestion::score(Food* reference) {
-    double first = (double) harmony(join(user,reference->info()));
+    double first = (double) harmony(util.join(user,reference->info()));
     double secund = (double) reference->calories();
     return  ((first/8) * 0.6 - (secund/1100) * 0.4) * 1000;
 }
 
 void GeneticSuggestion::print() {
     for (int i = 0; i < m_population.size(); ++i) {
-        printf("[%5d] ", m_population[i]->getId());
+        printf("[%5d - %3d] ", m_population[i]->calories(),score(m_population[i]));
         if((i + 1)% 6 == 0) cout << endl;
     }
-    cout << endl << endl;
 }
 
 void GeneticSuggestion::mutation() {
